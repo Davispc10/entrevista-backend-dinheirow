@@ -2,7 +2,7 @@
 
 # Exercício Node / Express / MongoDB/PostgreSQL
 
-Antes de começar a entrevista técnica, você deve prepara seu ambiente local para o funcionamento correto da aplicação. Instale os pacotes e execute o script `yarn dev` para iniciar o servidor em modo desenvolvimento. Recomendamos também que dê uma olhada no código para se familiarizar com a estrutura.
+Antes de começar a entrevista técnica, você deve prepara seu ambiente local para o funcionamento correto da aplicação. Instale os pacotes e execute o script `npm run dev` para iniciar o servidor em modo desenvolvimento. Recomendamos também que dê uma olhada no código para se familiarizar com a estrutura.
 
 # Como será a entrevista técnica?
 
