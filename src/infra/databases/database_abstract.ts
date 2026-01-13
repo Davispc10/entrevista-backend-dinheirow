@@ -14,4 +14,16 @@ export abstract class Database {
         destination: string;
         status: string;
     }): any;
+
+    public abstract addPassenger(passenger: {
+        id: string;
+        name: string;
+        email: string;
+        gender: string;
+    }): Promise<any>;
+    public abstract getPassengerById(id: string): Promise<any>;
+    public abstract getPassengerByEmail(email: string): Promise<any>;
+    public abstract addPassengerToFlight(passengerId: string, flightCode: string): Promise<any>;
+    public abstract getPassengersByFlight(flightCode: string): Promise<any>;
+    public abstract passengerExistsInFlight(passengerId: string, flightCode: string): Promise<boolean>;
 }

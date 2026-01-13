@@ -1,4 +1,5 @@
 import { FlightCode } from "../value-objects/FlightCode";
+import { FlightStatus, normalizeFlightStatus } from "../value-objects/FlightStatus";
 
 export class Flight {
     constructor(
@@ -15,7 +16,8 @@ export class Flight {
     }
 
     canAddPassenger(): boolean {
-        return this.status === 'ACTIVE';
+        const normalizedStatus = normalizeFlightStatus(this.status);
+        return normalizedStatus !== FlightStatus.CANCELLED;
     }
 
     responsibleAirline(): string {
