@@ -22,7 +22,7 @@ export class FlightsService {
         destination: string;
         status: string;
     }) {
-        return this._db.addFlight(flight);
+        return await this._db.addFlight(flight);
     }
 
     public async getFlightByCode(code: string) {

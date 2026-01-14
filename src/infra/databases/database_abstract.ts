@@ -14,4 +14,18 @@ export abstract class Database {
         destination: string;
         status: string;
     }): any;
+    public abstract addPassenger(passenger: {
+        id: string;
+        name: string;
+        email: string;
+        gender: string;
+    }): any;
+    public abstract addTicket(ticket: {
+        ownerId: string;
+        flightId: string;
+        price: string;
+        departure: string;
+        arrival: string;
+        type: string;
+    });
 }

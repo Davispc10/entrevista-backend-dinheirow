@@ -51,9 +51,10 @@ export default class FlightsController {
             status: string;
         },
     ) {
+        const data = await this._flightsService.addFlight(flight);
         return {
             status: 200,
-            data: await this._flightsService.addFlight(flight),
+            data,
         };
     }
 }

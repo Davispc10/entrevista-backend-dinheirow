@@ -62,4 +62,10 @@ export class MongoStrategy extends Database {
         }
         return flights.length > 0 ? flights[0] : null;
     }
+    public addPassenger(passenger: { id: string; name: string; email: string; gender: string; }) {
+        throw new Error('Method not implemented.');
+    }
+    public addTicket(ticket: { ownerId: string; flightId: string; price: string; departure: string; arrival: string; type: string; }) {
+        throw new Error('Method not implemented.');
+    }
 }
