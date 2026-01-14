@@ -7,7 +7,7 @@ import { DatabaseInstanceStrategy } from './infra/databases/database';
 
 const app = createExpressServer({
     routePrefix: '/api/v1',
-    controllers: [`${__dirname}/controllers/*.controller.*`],
+    controllers: [`${__dirname}/infra/controllers/*.controller.*`],
     validation: true,
     classTransformer: true,
     defaultErrorHandler: true,

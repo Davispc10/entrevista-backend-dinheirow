@@ -1,0 +1,24 @@
+POST http://localhost:3000/api/v1/passengers
+Content-Type: application/json
+
+{
+    "id": "003",
+    "name": "xpto2",
+    "email": "xpto@tld.com",
+    "gender": "male"
+}
+
+###
+POST http://localhost:3000/api/v1/passengers/ticket
+Content-Type: application/json
+
+{
+    "ownerId": "003",
+    "flightId": "TAM-111",
+    "price": "100.00",
+    "departure": "",
+    "arrival": "",
+    "type": "economic"
+}
+
+
