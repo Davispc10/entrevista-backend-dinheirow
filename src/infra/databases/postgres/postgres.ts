@@ -3,6 +3,7 @@ import { Database } from '../database_abstract';
 import { newDb, IMemoryDb } from 'pg-mem';
 
 export class PostgreStrategy extends Database {
+    
     _instance: IMemoryDb;
 
     constructor() {
@@ -35,7 +36,7 @@ export class PostgreStrategy extends Database {
     }
 
     public async getFlights() {
-        return PostgreStrategy._instance.public.many('SELECT * FROM flights');
+        return PostgreStrategy._instance.public.many('SELECT code, origin, destination, status FROM flights');
     }
 
     public async addFlight(flight: {
@@ -45,7 +46,9 @@ export class PostgreStrategy extends Database {
         status: string;
     }) {
         return PostgreStrategy._instance.public.one(
-            `INSERT INTO flights (code, origin, destination, status) VALUES ('${flight.code}', '${flight.origin}', '${flight.destination}', '${flight.status}')`,
+            `INSERT INTO flights (code, origin, destination, status) 
+            VALUES ('${flight.code}', '${flight.origin}', '${flight.destination}', '${flight.status}') 
+            RETURNING *`,
         );
     }
 

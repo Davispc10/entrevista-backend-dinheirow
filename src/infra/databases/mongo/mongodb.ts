@@ -57,9 +57,7 @@ export class MongoStrategy extends Database {
 
     public async getFlightByCode(code: string) {
         const flights = await FlightsModel.find({ code });
-        if (flights.length > 1) {
-            throw new Error(`Data integrity error: Multiple flights found with code ${code}`);
-        }
+        if (flights.length > 1) throw new Error(`Data integrity error: Multiple flights found with code ${code}`);
         return flights.length > 0 ? flights[0] : null;
     }
 }
