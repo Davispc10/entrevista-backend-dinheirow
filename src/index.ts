@@ -9,7 +9,7 @@ const app = createExpressServer({
     routePrefix: '/api/v1',
     controllers: [`${__dirname}/infra/controllers/*.controller.*`],
     validation: true,
-    classTransformer: true,
+    classTransformer: false,
     defaultErrorHandler: true,
 });
 

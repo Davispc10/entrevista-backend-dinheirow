@@ -19,15 +19,34 @@ export class PostgreStrategy extends Database {
                 code VARCHAR(10) PRIMARY KEY,
                 origin VARCHAR(50),
                 destination VARCHAR(50),
-                status VARCHAR(50)
+                status VARCHAR(50),
+                max_capacity INTEGER DEFAULT 180
             );
         `);
 
         db.public.many(`
-            INSERT INTO flights (code, origin, destination, status)
-            VALUES ('GOL-123', 'LHS', 'GAO', 'on time'),
-                   ('TAM-124', 'CGH', 'NYC', 'delayed'),
-                   ('AZU-125', 'FOR', 'LAX', 'on time');
+            CREATE TABLE passengers (
+                id VARCHAR(36) PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL,
+                gender VARCHAR(20) NOT NULL
+            );
+        `);
+
+        db.public.many(`
+            CREATE TABLE tickets (
+                id SERIAL PRIMARY KEY,
+                passenger_id VARCHAR(36) REFERENCES passengers(id),
+                flight_code VARCHAR(10) REFERENCES flights(code),
+                booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        db.public.many(`
+            INSERT INTO flights (code, origin, destination, status, max_capacity)
+            VALUES ('GOL-123', 'LHS', 'GAO', 'ACTIVE', 180),
+                   ('TAM-124', 'CGH', 'NYC', 'CANCELLED', 180),
+                   ('AZU-125', 'FOR', 'LAX', 'ACTIVE', 1);
         `);
 
         PostgreStrategy._instance = db;
@@ -36,7 +55,7 @@ export class PostgreStrategy extends Database {
     }
 
     public async getFlights() {
-        return PostgreStrategy._instance.public.many('SELECT code, origin, destination, status FROM flights');
+        return PostgreStrategy._instance.public.many('SELECT code, origin, destination, status, max_capacity FROM flights');
     }
 
     public async addFlight(flight: {
@@ -60,5 +79,40 @@ export class PostgreStrategy extends Database {
             throw new Error(`Data integrity error: Multiple flights found with code ${code}`);
         }
         return flights.length > 0 ? flights[0] : null;
+    }
+
+    public async getPassengerByEmail(email: string) {
+        const passengers = PostgreStrategy._instance.public.many(
+            `SELECT * FROM passengers WHERE email = '${email}'`
+        );
+        return passengers.length > 0 ? passengers[0] : null;
+    }
+
+    public async addPassenger(passenger: {
+        id: string;
+        name: string;
+        email: string;
+        gender: string;
+    }) {
+        return PostgreStrategy._instance.public.one(
+            `INSERT INTO passengers (id, name, email, gender) 
+             VALUES ('${passenger.id}', '${passenger.name}', '${passenger.email}', '${passenger.gender}') 
+             RETURNING *`
+        );
+    }
+
+    public async addTicket(passengerId: string, flightCode: string) {
+        return PostgreStrategy._instance.public.one(
+            `INSERT INTO tickets (passenger_id, flight_code) 
+             VALUES ('${passengerId}', '${flightCode}') 
+             RETURNING *`
+        );
+    }
+
+    public async countTicketsByFlight(flightCode: string): Promise<number> {
+        const result = PostgreStrategy._instance.public.many(
+            `SELECT COUNT(*) as count FROM tickets WHERE flight_code = '${flightCode}'`
+        );
+        return parseInt(result[0].count);
     }
 }
