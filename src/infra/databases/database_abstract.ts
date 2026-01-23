@@ -14,4 +14,13 @@ export abstract class Database {
         destination: string;
         status: string;
     }): any;
+    public abstract getPassengerByEmail(email: string): any;
+    public abstract addPassenger(passenger: {
+        id: string;
+        name: string;
+        email: string;
+        gender: string;
+    }): any;
+    public abstract addTicket(passengerId: string, flightCode: string): any;
+    public abstract countTicketsByFlight(flightCode: string): Promise<number>;
 }

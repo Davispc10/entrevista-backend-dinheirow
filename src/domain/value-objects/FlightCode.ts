@@ -2,9 +2,8 @@ export class FlightCode {
     private readonly value: string;
 
     constructor(value: string) {
-        if (!this.isValid(value)) {
-            throw new Error('Invalid flight code format. Expected format: ABC-123');
-        }
+        if (!this.isValid(value)) throw new Error('Invalid flight code format. Expected format: ABC-123');
+        
         this.value = value.toUpperCase();
     }
 

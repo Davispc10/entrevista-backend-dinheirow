@@ -57,9 +57,32 @@ export class MongoStrategy extends Database {
 
     public async getFlightByCode(code: string) {
         const flights = await FlightsModel.find({ code });
-        if (flights.length > 1) {
-            throw new Error(`Data integrity error: Multiple flights found with code ${code}`);
-        }
+        if (flights.length > 1) throw new Error(`Data integrity error: Multiple flights found with code ${code}`);
         return flights.length > 0 ? flights[0] : null;
+    }
+
+    public async getPassengerByEmail(email: string) {
+        // TODO: Implement MongoDB passenger lookup
+        return null;
+    }
+
+    public async addPassenger(passenger: {
+        id: string;
+        name: string;
+        email: string;
+        gender: string;
+    }) {
+        // TODO: Implement MongoDB passenger creation
+        return passenger;
+    }
+
+    public async addTicket(passengerId: string, flightCode: string) {
+        // TODO: Implement MongoDB ticket creation
+        return { id: '1', passenger_id: passengerId, flight_code: flightCode };
+    }
+
+    public async countTicketsByFlight(flightCode: string): Promise<number> {
+        // TODO: Implement MongoDB ticket count
+        return 0;
     }
 }

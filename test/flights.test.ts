@@ -80,4 +80,114 @@ describe('Flights API Integration Tests', () => {
             assert.strictEqual(response.body.data.origin, newFlight.origin);
         });
     });
+
+    describe('POST /api/v1/flights/:code/passengers', () => {
+        const passengerId = '550e8400-e29b-41d4-a716-446655440000';
+        const passengerData = {
+            id: passengerId,
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+            gender: 'Male'
+        };
+
+        it('should add a passenger and reserve a seat successfully', async () => {
+            const flightCode = 'GOL-123'; // ACTIVE flight with capacity
+            
+            const response = await request(app)
+                .post(`/api/v1/flights/${flightCode}/passengers`)
+                .send(passengerData)
+                .expect(201);
+            
+            assert.strictEqual(response.body.status, 201);
+            assert.strictEqual(response.body.data.email, passengerData.email);
+            assert.strictEqual(response.body.data.name, passengerData.name);
+            assert.strictEqual(response.body.reservation.reserved, true);
+            assert.strictEqual(response.body.reservation.message, 'Assento reservado com sucesso');
+        });
+
+        it('should add passenger but not reserve seat if flight does not exist', async () => {
+            const flightCode = 'XXX-999'; // Non-existent flight
+            const data = { 
+                ...passengerData, 
+                id: '550e8400-e29b-41d4-a716-446655440001', 
+                email: 'john2@example.com' 
+            };
+
+            const response = await request(app)
+                .post(`/api/v1/flights/${flightCode}/passengers`)
+                .send(data)
+                .expect(201);
+            
+            assert.strictEqual(response.body.status, 201);
+            assert.strictEqual(response.body.data.email, data.email);
+            assert.strictEqual(response.body.reservation.reserved, false);
+            assert.strictEqual(response.body.reservation.message, 'Voo não encontrado. Assento não reservado.');
+        });
+
+        it('should add passenger but not reserve seat if flight is CANCELLED', async () => {
+            const flightCode = 'TAM-124'; // CANCELLED flight
+            const data = { 
+                ...passengerData, 
+                id: '550e8400-e29b-41d4-a716-446655440002', 
+                email: 'john3@example.com' 
+            };
+
+            const response = await request(app)
+                .post(`/api/v1/flights/${flightCode}/passengers`)
+                .send(data)
+                .expect(201);
+            
+            assert.strictEqual(response.body.status, 201);
+            assert.strictEqual(response.body.data.email, data.email);
+            assert.strictEqual(response.body.reservation.reserved, false);
+            assert.ok(response.body.reservation.message.includes('CANCELLED'));
+            assert.ok(response.body.reservation.message.includes('Assento não reservado.'));
+        });
+
+        it('should add passenger but not reserve seat if flight is full', async () => {
+            const flightCode = 'AZU-125'; // Flight with max_capacity 1
+            
+            // First passenger (fills the flight)
+            const firstPassenger = {
+                ...passengerData,
+                id: '550e8400-e29b-41d4-a716-446655440003',
+                email: 'full1@example.com'
+            };
+            
+            await request(app)
+                .post(`/api/v1/flights/${flightCode}/passengers`)
+                .send(firstPassenger)
+                .expect(201);
+
+            // Second passenger (should not get a seat)
+            const secondPassenger = {
+                ...passengerData,
+                id: '550e8400-e29b-41d4-a716-446655440004',
+                email: 'full2@example.com'
+            };
+            
+            const response = await request(app)
+                .post(`/api/v1/flights/${flightCode}/passengers`)
+                .send(secondPassenger)
+                .expect(201);
+            
+            assert.strictEqual(response.body.status, 201);
+            assert.strictEqual(response.body.data.email, secondPassenger.email);
+            assert.strictEqual(response.body.reservation.reserved, false);
+            assert.strictEqual(response.body.reservation.message, 'Voo lotado. Assento não reservado.');
+        });
+
+        it('should return 400 if passenger email already exists', async () => {
+            const flightCode = 'GOL-123';
+            
+            // Try to add the same passenger again (email already used in first test)
+            const response = await request(app)
+                .post(`/api/v1/flights/${flightCode}/passengers`)
+                .send(passengerData)
+                .expect(400);
+            
+            assert.strictEqual(response.body.status, 400);
+            assert.strictEqual(response.body.message, 'Passenger already exists');
+        });
+    });
 });
