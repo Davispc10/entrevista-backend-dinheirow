@@ -6,11 +6,11 @@ export class Passenger {
         private gender: string
     ) {}
 
-    addToFlight(flightCode: string): void {
-        throw new Error('Method not implemented');
+    hasId(id: string): boolean {
+        return this.id === id
     }
 
-    isOnFlight(flightCode: string): boolean {
-        throw new Error('Method not implemented');
+    equals(p: Passenger) {
+        return this.email.toLowerCase() === p.email.toLowerCase()
     }
 }
