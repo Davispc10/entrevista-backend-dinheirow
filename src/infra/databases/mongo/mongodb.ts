@@ -1,25 +1,25 @@
-import { Database } from '../database_abstract';
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Database } from '../database_abstract'
+import mongoose from 'mongoose'
+import { MongoMemoryServer } from 'mongodb-memory-server'
 
-import { FlightsModel } from './models/flights.model';
+import { FlightsModel } from './models/flights.model'
 
 export class MongoStrategy extends Database {
     constructor() {
-        super();
-        this.getInstance();
+        super()
+        this.getInstance()
     }
 
     private async getInstance() {
-        const mongo = await MongoMemoryServer.create();
-        const uri = mongo.getUri();
+        const mongo = await MongoMemoryServer.create()
+        const uri = mongo.getUri()
 
         const mongooseOpts = {
             useNewUrlParser: true,
             useCreateIndex: true,
             useUnifiedTopology: true,
             useFindAndModify: false,
-        };
+        }
 
         const flights = [
             {
@@ -34,32 +34,44 @@ export class MongoStrategy extends Database {
                 destination: 'MIA',
                 status: 'on time',
             },
-        ];
+        ]
 
-        (async () => {
-            await mongoose.connect(uri, mongooseOpts);
-            await FlightsModel.create(flights);
-        })();
+        ;(async () => {
+            await mongoose.connect(uri, mongooseOpts)
+            await FlightsModel.create(flights)
+        })()
     }
 
     public async getFlights() {
-        return FlightsModel.find({});
+        return FlightsModel.find({})
     }
 
     public async addFlight(flight: {
-        code: string;
-        origin: string;
-        destination: string;
-        status: string;
+        code: string
+        origin: string
+        destination: string
+        status: string
     }) {
         return FlightsModel.create(flight)
     }
 
+    public async updateFlight(flight: {
+        code: string
+        origin: string
+        destination: string
+        status: string
+    }) {
+        const code = flight.code
+        return FlightsModel.updateOne({ code }, flight)
+    }
+
     public async getFlightByCode(code: string) {
-        const flights = await FlightsModel.find({ code });
+        const flights = await FlightsModel.find({ code })
         if (flights.length > 1) {
-            throw new Error(`Data integrity error: Multiple flights found with code ${code}`);
+            throw new Error(
+                `Data integrity error: Multiple flights found with code ${code}`
+            )
         }
-        return flights.length > 0 ? flights[0] : null;
+        return flights.length > 0 ? flights[0] : null
     }
 }
