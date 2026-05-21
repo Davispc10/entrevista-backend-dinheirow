@@ -5,15 +5,15 @@ import {
     Put,
     Post,
     Body,
-} from 'routing-controllers';
-import { FlightsService } from '../../application/flights.service';
+} from 'routing-controllers'
+import { FlightsService } from '../../application/flights.service'
 
 @JsonController('/flights', { transformResponse: false })
 export default class FlightsController {
-    private _flightsService: FlightsService;
+    private _flightsService: FlightsService
 
     constructor() {
-        this._flightsService = new FlightsService();
+        this._flightsService = new FlightsService()
     }
 
     @Get('')
@@ -21,7 +21,7 @@ export default class FlightsController {
         return {
             status: 200,
             data: await this._flightsService.getFlights(),
-        };
+        }
     }
 
     @Get('/:code')
@@ -29,15 +29,15 @@ export default class FlightsController {
         return {
             status: 200,
             data: await this._flightsService.getFlightByCode(code),
-        };
+        }
     }
 
     @Put('/:code')
-    async updateFlightStatus(@Param('code') code: string) {
+    async updateFlightStatus(@Param('code') code: string, @Body() flight: any) {
         return {
             status: 201,
-            data: await this._flightsService.updateFlightStatus(code),
-        };
+            data: await this._flightsService.updateFlightStatus(code, flight),
+        }
     }
 
     // add flight
@@ -45,15 +45,15 @@ export default class FlightsController {
     async addFlight(
         @Body()
         flight: {
-            code: string;
-            origin: string;
-            destination: string;
-            status: string;
-        },
+            code: string
+            origin: string
+            destination: string
+            status: string
+        }
     ) {
         return {
             status: 200,
             data: await this._flightsService.addFlight(flight),
-        };
+        }
     }
 }

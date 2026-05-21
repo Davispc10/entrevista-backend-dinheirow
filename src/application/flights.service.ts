@@ -1,31 +1,56 @@
-import { Database } from '../infra/databases/database_abstract';
-import { DatabaseInstanceStrategy } from '../infra/databases/database';
+import { Database } from '../infra/databases/database_abstract'
+import { DatabaseInstanceStrategy } from '../infra/databases/database'
 
 export class FlightsService {
-    private readonly _db: Database;
+    private readonly _db: Database
 
     constructor() {
-        this._db = DatabaseInstanceStrategy.getInstance();
+        this._db = DatabaseInstanceStrategy.getInstance()
     }
 
     public async getFlights() {
-        return this._db.getFlights();
+        return this._db.getFlights()
     }
 
-    public async updateFlightStatus(code: string) {
+    public async updateFlightStatus(code: string, flight: any) {
+        const flightExists = await this._db.getFlightByCode(code)
+        console.log(flight)
+        if (
+            flight.status === 'on time' ||
+            flight.status === 'delayed' ||
+            flight.status === 'cancelled'
+        ) {
+            if (
+                flightExists.status === 'on time' &&
+                (flight.status === 'delayed' || flight.status === 'cancelled')
+            ) {
+                flightExists.status = flight.status
+            } else if (
+                flightExists.status === 'delayed' &&
+                flight.status === 'cancelled'
+            ) {
+                flightExists.status = flight.status
+            } else {
+                throw new Error('Status cancelado não pode ser alterado!')
+            }
+        } else {
+            throw new Error('Status não autorizado!')
+        }
+
+        return this._db.updateFlight(flight)
         // return this._db.updateFlightStatus(code);
     }
 
     public async addFlight(flight: {
-        code: string;
-        origin: string;
-        destination: string;
-        status: string;
+        code: string
+        origin: string
+        destination: string
+        status: string
     }) {
-        return this._db.addFlight(flight);
+        return this._db.addFlight(flight)
     }
 
     public async getFlightByCode(code: string) {
-        return this._db.getFlightByCode(code);
+        return this._db.getFlightByCode(code)
     }
 }
