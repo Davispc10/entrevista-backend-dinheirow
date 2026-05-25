@@ -52,7 +52,10 @@ export class MongoStrategy extends Database {
         destination: string;
         status: string;
     }) {
-        return FlightsModel.create(flight)
+        return FlightsModel.findOneAndUpdate({ code: flight.code }, flight, {
+            new: true,
+            upsert: true,
+        });
     }
 
     public async getFlightByCode(code: string) {

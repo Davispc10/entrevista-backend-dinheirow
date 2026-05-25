@@ -1,17 +1,17 @@
-import { Database } from '../database_abstract';
+import { Database } from '../database_abstract'
 
-import { newDb, IMemoryDb } from 'pg-mem';
+import { newDb, IMemoryDb } from 'pg-mem'
 
 export class PostgreStrategy extends Database {
-    _instance: IMemoryDb;
+    _instance: IMemoryDb
 
     constructor() {
-        super();
-        this.getInstance();
+        super()
+        this.getInstance()
     }
 
     private async getInstance() {
-        const db = newDb();
+        const db = newDb()
 
         db.public.many(`
             CREATE TABLE flights (
@@ -20,42 +20,58 @@ export class PostgreStrategy extends Database {
                 destination VARCHAR(50),
                 status VARCHAR(50)
             );
-        `);
+        `)
 
         db.public.many(`
             INSERT INTO flights (code, origin, destination, status)
             VALUES ('GOL-123', 'LHS', 'GAO', 'on time'),
                    ('TAM-124', 'CGH', 'NYC', 'delayed'),
                    ('AZU-125', 'FOR', 'LAX', 'on time');
-        `);
+        `)
 
-        PostgreStrategy._instance = db;
+        PostgreStrategy._instance = db
 
-        return db;
+        return db
     }
 
     public async getFlights() {
-        return PostgreStrategy._instance.public.many('SELECT * FROM flights');
+        return PostgreStrategy._instance.public.many('SELECT * FROM flights')
     }
 
     public async addFlight(flight: {
-        code: string;
-        origin: string;
-        destination: string;
-        status: string;
+        code: string
+        origin: string
+        destination: string
+        status: string
     }) {
         return PostgreStrategy._instance.public.one(
-            `INSERT INTO flights (code, origin, destination, status) VALUES ('${flight.code}', '${flight.origin}', '${flight.destination}', '${flight.status}')`,
-        );
+            `INSERT INTO flights (code, origin, destination, status)
+             VALUES (${this.toSqlString(flight.code)}, ${this.toSqlString(
+                flight.origin
+            )}, ${this.toSqlString(flight.destination)}, ${this.toSqlString(
+                flight.status
+            )})
+             ON CONFLICT (code) DO UPDATE
+             SET origin = EXCLUDED.origin,
+                 destination = EXCLUDED.destination,
+                 status = EXCLUDED.status
+             RETURNING code, origin, destination, status`
+        )
     }
 
     public async getFlightByCode(code: string) {
         const flights = PostgreStrategy._instance.public.many(
-            `SELECT * FROM flights WHERE code = '${code}'`
-        );
+            `SELECT * FROM flights WHERE code = ${this.toSqlString(code)}`
+        )
         if (flights.length > 1) {
-            throw new Error(`Data integrity error: Multiple flights found with code ${code}`);
+            throw new Error(
+                `Data integrity error: Multiple flights found with code ${code}`
+            )
         }
-        return flights.length > 0 ? flights[0] : null;
+        return flights.length > 0 ? flights[0] : null
+    }
+
+    private toSqlString(value: string) {
+        return `'${value.replace(/'/g, "''")}'`
     }
 }
