@@ -11,7 +11,7 @@ Nossa sessão será como um "pair programming", iremos pedir a implementação d
 # Requisitos básicos
 
 -   Sua IDE/Editor de preferência
--   NodeJs > 24.X
+-   NodeJs >= 22.X
 -   Algum programa para requisições à API, como cURL, Postman, Insonmia...
 
 ## Bibliotecas usadas:

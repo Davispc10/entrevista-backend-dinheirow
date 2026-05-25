@@ -26,6 +26,8 @@ export class FlightsService {
     }
 
     public async getFlightByCode(code: string) {
-        return this._db.getFlightByCode(code);
+        const flight = await this._db.getFlightByCode(code);
+
+        return flight ? flight.toData() : null;
     }
 }

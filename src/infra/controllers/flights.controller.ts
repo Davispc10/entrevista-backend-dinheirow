@@ -7,13 +7,16 @@ import {
     Body,
 } from 'routing-controllers';
 import { FlightsService } from '../../application/flights.service';
+import { PassengersService } from '../../application/passengers.service';
 
 @JsonController('/flights', { transformResponse: false })
 export default class FlightsController {
     private _flightsService: FlightsService;
+    private _passengersService: PassengersService;
 
     constructor() {
         this._flightsService = new FlightsService();
+        this._passengersService = new PassengersService();
     }
 
     @Get('')
@@ -54,6 +57,23 @@ export default class FlightsController {
         return {
             status: 200,
             data: await this._flightsService.addFlight(flight),
+        };
+    }
+
+    @Post('/:code/passengers')
+    async addPassengerToFlight(
+        @Param('code') code: string,
+        @Body()
+        payload: {
+            passengerId: string;
+        }
+    ) {
+        return {
+            status: 200,
+            data: await this._passengersService.linkPassengerToFlight(
+                code,
+                payload && payload.passengerId
+            ),
         };
     }
 }

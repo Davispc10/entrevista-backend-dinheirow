@@ -3,13 +3,13 @@ export class FlightCode {
 
     constructor(value: string) {
         if (!this.isValid(value)) {
-            throw new Error('Invalid flight code format. Expected format: ABC-123');
+            throw new Error('Invalid flight code format. Expected format: ABC-1 to ABC-999');
         }
         this.value = value.toUpperCase();
     }
 
     private isValid(code: string): boolean {
-        const flightCodeRegex = /^[A-Z]{3}-\d{3}$/;
+        const flightCodeRegex = /^[A-Z]{3}-\d{1,3}$/;
         return flightCodeRegex.test(code.toUpperCase());
     }
 

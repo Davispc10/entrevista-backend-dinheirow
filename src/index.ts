@@ -1,31 +1,39 @@
-import 'reflect-metadata';
+import 'reflect-metadata'
 
-import { Environment } from './environment';
-import { createExpressServer } from 'routing-controllers';
+import { Environment } from './environment'
+import { createExpressServer } from 'routing-controllers'
 
-import { DatabaseInstanceStrategy } from './infra/databases/database';
+import { DatabaseInstanceStrategy } from './infra/databases/database'
 
 const app = createExpressServer({
     routePrefix: '/api/v1',
-    controllers: [`${__dirname}/controllers/*.controller.*`],
+    controllers: [`${__dirname}/infra/controllers/*.controller.*`],
     validation: true,
     classTransformer: true,
-    defaultErrorHandler: true,
-});
+    defaultErrorHandler: false,
+})
+
+app.use((error, req, res, next) => {
+    const status = error.httpCode || error.status || 500
+
+    res.status(status).json({
+        status,
+        message: error.message,
+    })
+})
 
 if (!Environment.db_type) {
     throw new Error(
-        'DB type is not defined -- please set DB_TYPE in .env. Allowed values: mongo, postgres',
-    );
+        'DB type is not defined -- please set DB_TYPE in .env. Allowed values: mongo, postgres'
+    )
 }
 
-DatabaseInstanceStrategy.setInstanceByEnv(Environment.db_type);
+DatabaseInstanceStrategy.setInstanceByEnv(Environment.db_type)
 
-// Connect to In-Memory DB
-app.listen(Environment.port, () => {
-    console.log(
-        `[Server Running] http://localhost:${Environment.port}`,
-    );
-});
+if (require.main === module) {
+    app.listen(Environment.port, () => {
+        console.log(`[Server Running] http://localhost:${Environment.port}`)
+    })
+}
 
-export default app;
+export default app
