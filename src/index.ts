@@ -10,7 +10,16 @@ const app = createExpressServer({
     controllers: [`${__dirname}/infra/controllers/*.controller.*`],
     validation: true,
     classTransformer: true,
-    defaultErrorHandler: true,
+    defaultErrorHandler: false,
+})
+
+app.use((error, req, res, next) => {
+    const status = error.httpCode || error.status || 500
+
+    res.status(status).json({
+        status,
+        message: error.message,
+    })
 })
 
 if (!Environment.db_type) {
